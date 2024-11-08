@@ -15,7 +15,8 @@ Start by compiling the framework. This is done using a docker container provided
 Using the Dockerfile in the `src` folder
 
 ```
-    cd src && docker build -t lambda .
+    cd src
+    docker build -t lambda .
 ```
 
 ### Compile the code
