@@ -1,18 +1,18 @@
-# lambda-c-runtime: A Framework that lest you write Lambda function in C
+# lambda-c-runtime: A Framework for writing AWS Lambda functions in C
 
-This framework utilises the "provided.al2023" in AWS Lambda to take control over the runtime, and run a precompiled binary directly on the Lambda instead of spinning up a runtime.
+This framework leverages the provided.al2023 runtime in AWS Lambda to directly control the runtime environment, allowing you to run a precompiled binary on Lambda instead of spinning up a standard runtime.
 
 In other words, your binary _is_ the runtime.
 
-As such, it can also be used as a starting point to running any other compiled binary on lambda, wether it is Rust, Cobol, or whatever - as long as it can compile to the lambda target.
+This setup can also serve as a starting point for running any other compiled binary on Lambda, whether written in C, Rust, COBOL, or any language that can compile to the Lambda target architecture.
 
 ## Getting started
 
-Start by compiling the framework. This is done using a docker container provided by AWS that represents the lambda target, installing compilation tools and dependencies in it, and compiling the code.
+To get started, begin by compiling the framework. This process involves using an AWS-provided Docker container to emulate the Lambda target environment, setting up necessary compilation tools and dependencies, and compiling the code.
 
 ### Build the container
 
-Using the Dockerfile in the `src` folder
+Navigate to the `src` folder and build the container using the provided Dockerfile.
 
 ```
     cd src
@@ -21,7 +21,7 @@ Using the Dockerfile in the `src` folder
 
 ### Compile the code
 
-Build the binary, and install it in the `lambda_runtime` folder, overwriting the `bootstrap` shell script (also a fully functioning runtime), with the built binary.
+Build the binary and install it in the `lambda_runtime` folder. This replaces the `bootstrap` shell script (a functioning runtime in itself) with the compiled binary.
 
 ```
     docker run -ti -v $(pwd)/src:/src -v $(pwd)/lambda_runtime:/lambda_runtime -w /src make install
@@ -31,25 +31,25 @@ Build the binary, and install it in the `lambda_runtime` folder, overwriting the
 
 The terraform folder contains a lamda template that can be used to create a lambda function that uses the custom runtime.
 
-First, choose a unique name for your terraform stack bucket and create the bucket.
+Choose a unique name for your Terraform state bucket and create it:
 
 ```bash
     aws s3api create-bucket --bucket YOUR_UNIQUE_BUCKET_NAME
 ```
 
-Next, replace the bucket name in `terraform/main.tf` with your bucket name
+Replace the placeholder bucket name in `terraform/main.tf` with your unique bucket name:
 
 ```yaml
     terraform {
       backend "s3" {
-        bucket = "lambda-c-runtime-terraform-state" <- YOUR_UNIQUE_BUCKET_NAME_HERE
+        bucket = "YOUR_UNIQUE_BUCKET_NAME_HERE"
         key    = "lambda_c_runtime"
         region = "us-east-1"
       }
     }
 ```
 
-If you're building on an X86 architecture, it is important to change the lambda architecture in `terraform/lambda.tf`
+If you’re building on an `x86_64` architecture, modify the Lambda architecture in `terraform/lambda.tf`:
 
 ```yaml
     resource "aws_lambda_function" "test_lambda" {
@@ -59,11 +59,11 @@ If you're building on an X86 architecture, it is important to change the lambda 
       handler          = "bootstrap.main"
       source_code_hash = data.archive_file.lambda_zip.output_base64sha256
       runtime          = "provided.al2023"
-      architectures    = ["arm64"] <- REPLACE WITH ["x86_64"]
+      architectures    = ["x86_64"] # Change arm64 to x86_64
     }
 ```
 
-Now, deploy the stack
+Deploy the Lambda stack using Terraform:
 
 ```bash
     cd terraform
@@ -72,7 +72,7 @@ Now, deploy the stack
     terraform apply "terraform.plan"
 ```
 
-And invoke the lambda function
+Finally, invoke the Lambda function with a sample payload:
 
 ```bash
     aws lambda invoke --function lambda_c_runtime --payload '{"hello":"world"}' --cli-binary-format raw-in-base64-out output.txt
