@@ -3,8 +3,9 @@
 
 terraform {
   backend "s3" {
-    bucket = "terraform-state"
+    bucket = "lambda-c-runtime-terraform-state"
     key    = "lambda_c_runtime"
+    region = "us-east-1"
   }
 }
 

@@ -32,4 +32,5 @@ resource "aws_lambda_function" "test_lambda" {
   handler          = "bootstrap.main"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   runtime          = "provided.al2023"
+  architectures    = ["arm64"]
 }
