@@ -5,7 +5,6 @@ terraform {
   backend "s3" {
     bucket = "terraform-state"
     key    = "lambda_c_runtime"
-    region = "us-east-1"
   }
 }
 
