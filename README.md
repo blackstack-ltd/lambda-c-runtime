@@ -77,3 +77,7 @@ Finally, invoke the Lambda function with a sample payload:
 ```bash
     aws lambda invoke --function lambda_c_runtime --payload '{"hello":"world"}' --cli-binary-format raw-in-base64-out output.txt
 ```
+
+## Implement your own logic
+
+See the [clambda api documentation](https://github.com/blackstack-ltd/lambda-c-runtime/tree/main/src)
